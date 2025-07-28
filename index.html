@@ -1,61 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-  <title>Sniper Strem - Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sniper Strem - Accesso</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #003366, #0066cc);
-      color: white;
       margin: 0;
       padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #003366, #0059b3);
+      color: white;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       height: 100vh;
     }
 
-    .container {
-      background: rgba(0, 0, 50, 0.8);
+    .card {
+      background: white;
+      color: #003366;
       padding: 40px;
       border-radius: 15px;
-      box-shadow: 0 0 20px black;
-      text-align: center;
       width: 90%;
-      max-width: 500px;
+      max-width: 450px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      text-align: center;
     }
 
-    h1 {
-      font-size: 32px;
+    .card h1 {
       margin-bottom: 20px;
+      font-size: 28px;
     }
 
     input, select, button {
       width: 100%;
-      padding: 15px;
+      padding: 14px;
       margin: 10px 0;
-      border-radius: 10px;
-      border: none;
       font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
 
     button {
-      background-color: #00ccff;
-      color: black;
-      font-weight: bold;
+      background-color: #0059b3;
+      color: white;
+      border: none;
       cursor: pointer;
       transition: 0.3s;
     }
 
     button:hover {
-      background-color: #0099cc;
+      background-color: #003d80;
     }
 
     #ownerRoom {
       margin-top: 30px;
-      background-color: #001f3f;
       padding: 20px;
       border-radius: 10px;
+      background: #e6f0ff;
+      color: #001f3f;
       display: none;
     }
 
@@ -63,53 +67,55 @@
       margin-top: 10px;
       font-weight: bold;
     }
+
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎬 Sniper Strem Accesso</h1>
-
-    <input type="email" id="email" placeholder="Inserisci email">
-    <input type="password" id="password" placeholder="Inserisci password">
-
+  <div class="card">
+    <h1>🎬 Sniper Strem - Login</h1>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
     <select id="abbonamento">
-      <option value="classic">Classic (20 giorni)</option>
-      <option value="medium">Medium (30 giorni)</option>
-      <option value="ultimate">Ultimate (60 giorni)</option>
+      <option value="classic">Classic - 20 giorni</option>
+      <option value="medium">Medium - 1 mese</option>
+      <option value="ultimate">Ultimate - 2 mesi</option>
     </select>
-
     <input type="text" id="codice" placeholder="Codice abbonamento">
-
     <button onclick="accedi()">Accedi</button>
 
     <div id="ownerRoom">
-      <h2>Owner Room 👑</h2>
+      <h2>👑 Owner Room</h2>
       <button onclick="generaCodice()">Genera Codice</button>
       <p id="codiceGenerato"></p>
     </div>
   </div>
 
   <script>
-    const codiciValidi = ["ABC123", "DEF456", "VIP789"];
+    const codiciValidi = ["START123", "VIP456", "FREE999"];
     const emailOwner = "edo318@admin.com";
 
     function accedi() {
       const email = document.getElementById("email").value;
       const codice = document.getElementById("codice").value;
 
+      if (!email || !codice) {
+        alert("Inserisci tutti i campi.");
+        return;
+      }
+
       if (codiciValidi.includes(codice)) {
-        alert("Accesso riuscito!");
+        alert("✅ Accesso riuscito!");
         if (email === emailOwner) {
           document.getElementById("ownerRoom").style.display = "block";
         }
       } else {
-        alert("Codice abbonamento non valido.");
+        alert("❌ Codice abbonamento non valido.");
       }
     }
 
     function generaCodice() {
       const nuovoCodice = "COD" + Math.floor(Math.random() * 100000);
-      document.getElementById("codiceGenerato").innerText = "Codice creato: " + nuovoCodice;
+      document.getElementById("codiceGenerato").innerText = "Codice generato: " + nuovoCodice;
     }
   </script>
 </body>
