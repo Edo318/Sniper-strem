@@ -2,121 +2,78 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sniper Strem - Accesso</title>
+  <title>Login / Registrazione</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #003366, #0059b3);
-      color: white;
+      background-color: #001b2e;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
+      font-family: Arial, sans-serif;
+      color: white;
     }
-
-    .card {
-      background: white;
-      color: #003366;
-      padding: 40px;
-      border-radius: 15px;
-      width: 90%;
-      max-width: 450px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-      text-align: center;
-    }
-
-    .card h1 {
+    h2 {
       margin-bottom: 20px;
-      font-size: 28px;
     }
-
-    input, select, button {
-      width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+    input {
+      padding: 10px;
+      margin: 10px;
+      width: 250px;
+      border: none;
+      border-radius: 20px;
     }
-
     button {
-      background-color: #0059b3;
+      padding: 10px 30px;
+      background-color: #00aaff;
       color: white;
       border: none;
+      border-radius: 20px;
       cursor: pointer;
-      transition: 0.3s;
     }
-
-    button:hover {
-      background-color: #003d80;
-    }
-
-    #ownerRoom {
-      margin-top: 30px;
-      padding: 20px;
-      border-radius: 10px;
-      background: #e6f0ff;
-      color: #001f3f;
-      display: none;
-    }
-
-    #codiceGenerato {
-      margin-top: 10px;
-      font-weight: bold;
-    }
-
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>🎬 Sniper Strem - Login</h1>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <select id="abbonamento">
-      <option value="classic">Classic - 20 giorni</option>
-      <option value="medium">Medium - 1 mese</option>
-      <option value="ultimate">Ultimate - 2 mesi</option>
-    </select>
-    <input type="text" id="codice" placeholder="Codice abbonamento">
-    <button onclick="accedi()">Accedi</button>
 
-    <div id="ownerRoom">
-      <h2>👑 Owner Room</h2>
-      <button onclick="generaCodice()">Genera Codice</button>
-      <p id="codiceGenerato"></p>
-    </div>
-  </div>
+  <h2>USER LOGIN</h2>
+  <input type="text" id="email" placeholder="Email"><br>
+  <input type="password" id="password" placeholder="Password"><br>
+  <input type="text" id="codice" placeholder="Codice Abbonamento"><br>
+  <button onclick="login()">LOGIN</button>
 
   <script>
-    const codiciValidi = ["START123", "VIP456", "FREE999"];
-    const emailOwner = "edo318@admin.com";
+    const codiciValidi = {
+      "ABCDEF1234567890QWERTYUIOPL": "classic",
+      "MEDIA1234567890POIUYTREWQZ": "medium",
+      "ULTIMATECODE00000000000001": "premium"
+    };
 
-    function accedi() {
-      const email = document.getElementById("email").value;
-      const codice = document.getElementById("codice").value;
+    function login() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const codice = document.getElementById("codice").value.trim();
 
-      if (!email || !codice) {
-        alert("Inserisci tutti i campi.");
+      if (!email || !password || !codice) {
+        alert("Compila tutti i campi.");
         return;
       }
 
-      if (codiciValidi.includes(codice)) {
-        alert("✅ Accesso riuscito!");
-        if (email === emailOwner) {
-          document.getElementById("ownerRoom").style.display = "block";
-        }
+      localStorage.setItem("email", email);
+      localStorage.setItem("password", password);
+      localStorage.setItem("codice", codice);
+
+      if (email === "edo318@admin.com") {
+        window.location.href = "owner.html";
+      } else if (codice in codiciValidi) {
+        localStorage.setItem("abbonamento", codiciValidi[codice]);
+        window.location.href = "home.html";
       } else {
-        alert("❌ Codice abbonamento non valido.");
+        alert("Codice non valido.");
       }
     }
-
-    function generaCodice() {
-      const nuovoCodice = "COD" + Math.floor(Math.random() * 100000);
-      document.getElementById("codiceGenerato").innerText = "Codice generato: " + nuovoCodice;
-    }
   </script>
+
 </body>
 </html>
+  
