@@ -1,11 +1,197 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>La Mia App</title>
-  </head>
-  <body>
-    <h1>Benvenuto nella mia App!</h1>
-    <p>Funziona! 🎉</p>
-  </body>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login e Abbonamenti</title>
+  <style>
+    body {
+      background-color: #004080; /* blu scuro */
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      max-width: 300px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background-color: #0066cc;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005bb5;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <h1>Login / Registrazione</h1>
+
+  <div id="login-form">
+    <input type="email" id="email" placeholder="Email" /><br />
+    <input type="password" id="password" placeholder="Password" /><br />
+    <button onclick="login()">Login</button>
+    <button onclick="register()">Registrati</button>
+  </div>
+
+  <div id="user-info" class="hidden">
+    <h2>Benvenuto, <span id="user-email"></span></h2>
+    <p>Abbonamento: <span id="user-plan">Nessuno</span></p>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div id="owner-room" class="hidden">
+    <h2>Owner Room</h2>
+    <input type="text" id="code-to-generate" placeholder="Nome codice abbonamento" />
+    <button onclick="generateCode()">Genera Codice</button>
+    <div id="generated-codes"></div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Configurazione Firebase - sostituisci con la tua config
+    const firebaseConfig = {
+      apiKey: "LA_TUA_API_KEY",
+      authDomain: "IL_TUO_AUTH_DOMAIN",
+      projectId: "IL_TUO_PROJECT_ID",
+      storageBucket: "IL_TUO_STORAGE_BUCKET",
+      messagingSenderId: "IL_TUO_MESSAGING_SENDER_ID",
+      appId: "IL_TUO_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const ownerEmail = "tuo@email.com"; // Metti qui la tua email da owner
+
+    const loginForm = document.getElementById('login-form');
+    const userInfo = document.getElementById('user-info');
+    const ownerRoom = document.getElementById('owner-room');
+    const userEmailSpan = document.getElementById('user-email');
+    const userPlanSpan = document.getElementById('user-plan');
+    const generatedCodesDiv = document.getElementById('generated-codes');
+
+    // Login
+    function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          showUserInfo(user);
+        })
+        .catch(error => alert(error.message));
+    }
+
+    // Registrazione
+    function register() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          // All'inizio nessun abbonamento
+          return db.collection('users').doc(user.uid).set({
+            email: email,
+            plan: "Nessuno",
+            role: "user"
+          }).then(() => {
+            showUserInfo(user);
+          });
+        })
+        .catch(error => alert(error.message));
+    }
+
+    // Logout
+    function logout() {
+      auth.signOut().then(() => {
+        loginForm.classList.remove('hidden');
+        userInfo.classList.add('hidden');
+        ownerRoom.classList.add('hidden');
+      });
+    }
+
+    // Mostra info utente
+    function showUserInfo(user) {
+      loginForm.classList.add('hidden');
+      userInfo.classList.remove('hidden');
+
+      userEmailSpan.textContent = user.email;
+
+      db.collection('users').doc(user.uid).get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          userPlanSpan.textContent = data.plan || "Nessuno";
+
+          if (user.email === ownerEmail) {
+            ownerRoom.classList.remove('hidden');
+            loadGeneratedCodes();
+          } else {
+            ownerRoom.classList.add('hidden');
+          }
+        }
+      });
+    }
+
+    // Genera codice abbonamento (solo owner)
+    function generateCode() {
+      const codeName = document.getElementById('code-to-generate').value.trim();
+      if (!codeName) {
+        alert('Inserisci un nome per il codice');
+        return;
+      }
+
+      // Crea un codice casuale
+      const codeValue = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+      db.collection('codes').doc(codeValue).set({
+        name: codeName,
+        code: codeValue,
+        createdBy: ownerEmail,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        active: true,
+        plan: codeName // Puoi personalizzare in base al nome
+      }).then(() => {
+        alert('Codice generato: ' + codeValue);
+        loadGeneratedCodes();
+      });
+    }
+
+    // Carica codici generati
+    function loadGeneratedCodes() {
+      generatedCodesDiv.innerHTML = '';
+      db.collection('codes').where('active', '==', true).get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            generatedCodesDiv.innerHTML += `<p>${data.name}: <b>${data.code}</b></p>`;
+          });
+        });
+    }
+
+    // Controllo stato autenticazione
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        showUserInfo(user);
+      } else {
+        loginForm.classList.remove('hidden');
+        userInfo.classList.add('hidden');
+        ownerRoom.classList.add('hidden');
+      }
+    });
+  </script>
+
+</body>
 </html>
