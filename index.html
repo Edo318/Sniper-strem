@@ -1,100 +1,46 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Logo 360 Animation</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logo 360°</title>
   <style>
     body {
-      margin: 0;
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(145deg, #0d1a2b, #1f3a60);
+      background: #0a0a23;
       color: white;
+      font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
     }
-
-    h1 {
-      margin-bottom: 20px;
-    }
-
-    .upload-box {
-      background: #102840;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 30px;
-    }
-
-    input[type="file"] {
-      padding: 10px;
-      background: #fff;
-      border: none;
-      border-radius: 5px;
-    }
-
     #preview {
-      margin-top: 30px;
-      width: 250px;
-      height: 250px;
-      perspective: 1000px;
-      margin-inline: auto;
+      width: 200px;
+      height: 200px;
+      margin: 20px auto;
+      animation: rotate360 3s linear infinite;
     }
-
-    #preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      animation: spin3d 3s infinite linear;
-      transform-style: preserve-3d;
+    @keyframes rotate360 {
+      from {
+        transform: rotateY(0deg);
+      }
+      to {
+        transform: rotateY(360deg);
+      }
     }
-
-    @keyframes spin3d {
-      0% { transform: rotateY(0deg) rotateX(0deg); }
-      50% { transform: rotateY(180deg) rotateX(10deg); }
-      100% { transform: rotateY(360deg) rotateX(0deg); }
-    }
-
-    button {
+    input {
       margin-top: 20px;
-      padding: 10px 20px;
-      border: none;
-      background: #ffffff;
-      color: #000000;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #dddddd;
     }
   </style>
 </head>
 <body>
-  <h1>🌟 Logo Animato 360° Style</h1>
-  <div class="upload-box">
-    <input type="file" accept="image/*" onchange="previewImage(event)" />
-  </div>
-
-  <div id="preview"></div>
-
-  <button onclick="downloadImage()">Salva Logo Animato</button>
-
+  <h1>🎯 Logo 360° Rotazione</h1>
+  <input type="file" accept="image/*" onchange="loadImage(event)">
+  <br><br>
+  <img id="preview" src="" alt="Preview">
+  
   <script>
-    function previewImage(event) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onload = function () {
-        const img = document.createElement('img');
-        img.src = reader.result;
-        const preview = document.getElementById('preview');
-        preview.innerHTML = '';
-        preview.appendChild(img);
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function downloadImage() {
-      alert("⚠️ Il salvataggio dell'effetto 360 come GIF richiede strumenti più avanzati (es. app esterna). Puoi fare uno screen o usare una registrazione.");
+    function loadImage(event) {
+      const image = document.getElementById('preview');
+      image.src = URL.createObjectURL(event.target.files[0]);
     }
   </script>
 </body>
