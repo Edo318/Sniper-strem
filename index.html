@@ -1,127 +1,747 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Grafica Sniper 360</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0b0c2a;
-      color: white;
-      text-align: center;
-      padding: 20px;
-    }
-    input, button, select {
-      margin: 10px;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-    }
-    #preview {
-      width: 250px;
-      height: 250px;
-      margin: auto;
-      border: 2px solid #444;
-      background-color: #111;
-      background-size: cover;
-      background-position: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galleria Immagini</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background: transparent;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            animation: rotate360 3s linear infinite;
+        }
+
+        @keyframes rotate360 {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .logo svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .top-controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .main-display {
+            background: transparent;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .display-area {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            perspective: 1200px;
+            perspective-origin: center center;
+            background: transparent;
+        }
+
+        .display-area:hover {
+            background: transparent;
+        }
+
+        .display-area.has-image {
+            border: none;
+            background: transparent;
+        }
+
+        .display-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: none;
+            transition: none;
+        }
+
+        .display-image.rotate-3d {
+            animation: continuousSpin 2s linear infinite;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes continuousSpin {
+            from {
+                transform: rotateY(0deg);
+            }
+            to {
+                transform: rotateY(360deg);
+            }
+        }
+
+        .placeholder-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+        }
+
+        .controls-menu {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .upload-section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            display: none;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                border-color: rgba(255, 255, 255, 0.5);
+            }
+            50% {
+                transform: scale(1.02);
+                border-color: rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upload-area.dragover {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-subtext {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .image-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideInUp 0.6s ease forwards;
+        }
+
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .image-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            animation: none;
+        }
+
+        .image-card:nth-child(even) {
+            animation-delay: 0.2s;
+        }
+
+        .image-card:nth-child(3n) {
+            animation-delay: 0.4s;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+            animation: rotate3D 3s ease-in-out;
+        }
+
+        @keyframes rotate3D {
+            0% {
+                transform: rotateY(0deg) rotateX(0deg) scale(1);
+            }
+            25% {
+                transform: rotateY(90deg) rotateX(10deg) scale(0.9);
+            }
+            50% {
+                transform: rotateY(180deg) rotateX(0deg) scale(0.8);
+            }
+            75% {
+                transform: rotateY(270deg) rotateX(-10deg) scale(0.9);
+            }
+            100% {
+                transform: rotateY(360deg) rotateX(0deg) scale(1);
+            }
+        }
+
+        @keyframes spin360 {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin3D {
+            0% {
+                transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg);
+            }
+            33% {
+                transform: rotateY(120deg) rotateX(20deg) rotateZ(10deg);
+            }
+            66% {
+                transform: rotateY(240deg) rotateX(-20deg) rotateZ(-10deg);
+            }
+            100% {
+                transform: rotateY(360deg) rotateX(0deg) rotateZ(0deg);
+            }
+        }
+
+        .display-image.rotate-360 {
+            animation: spin360 2s ease-in-out;
+        }
+
+
+
+        .display-image.spin-3d {
+            animation: spin3D 3s ease-in-out;
+        }
+
+        .image-card:hover .image-container img {
+            transform: scale(1.05);
+        }
+
+        .image-info {
+            padding: 1.5rem;
+        }
+
+        .image-name {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+        }
+
+        .image-size {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .save-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 150, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .image-card:hover .delete-btn,
+        .image-card:hover .save-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 0, 0, 1);
+            transform: scale(1.1) rotate(90deg);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .save-btn:hover {
+            background: rgba(0, 180, 0, 1);
+            transform: scale(1.1);
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: scale(1.1) rotate(90deg) translateX(0); }
+            25% { transform: scale(1.1) rotate(90deg) translateX(-2px); }
+            75% { transform: scale(1.1) rotate(90deg) translateX(2px); }
+        }
+
+        .empty-gallery {
+            text-align: center;
+            padding: 4rem 2rem;
+            opacity: 0.7;
+        }
+
+        .empty-gallery-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.5rem;
+            }
+            
+            .upload-area {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="header">
+        <div class="logo">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#FF6347;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="45" fill="url(#logoGradient)" stroke="white" stroke-width="2"/>
+                <path d="M30 40 L50 25 L70 40 L65 45 L50 35 L35 45 Z" fill="white"/>
+                <rect x="35" y="45" width="30" height="25" rx="2" fill="white"/>
+                <circle cx="42" cy="52" r="3" fill="url(#logoGradient)"/>
+                <path d="M45 58 L55 52 L65 58 L65 65 L45 65 Z" fill="url(#logoGradient)"/>
+            </svg>
+        </div>
+        <h1>Galleria Immagini</h1>
+        <p class="subtitle">Carica e organizza le tue foto preferite</p>
+    </div>
 
-  <h1>Grafica Sniper 360</h1>
+    <div class="container">
+        <div class="top-controls">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                📸 Carica Immagine
+            </button>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        </div>
 
-  <input type="file" id="imageInput" accept="image/*"><br>
+        <div class="main-display">
+            <div class="display-area" id="displayArea" onclick="document.getElementById('fileInput').click()">
+                <div class="placeholder-text">Clicca per caricare un'immagine</div>
+            </div>
+        </div>
 
-  <div id="preview"></div><br>
+        <div class="controls-menu" id="controlsMenu" style="display: none;">
+            <button class="menu-btn" onclick="applyEffect('360')">360°</button>
+            <button class="menu-btn" onclick="applyEffect('spin')">360° Spin</button>
+            <button class="menu-btn" onclick="applyEffect('3d')">360° Spin 3D</button>
+            <button class="menu-btn" onclick="downloadImage()">💾 Scarica</button>
+        </div>
 
-  <label>Velocità (frame/s):</label>
-  <input type="number" id="speedInput" value="20" min="1" max="100"><br>
+        <div class="upload-section">
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Clicca qui per caricare le immagini</div>
+                <div class="upload-subtext">Oppure trascina e rilascia i file qui</div>
+            </div>
+        </div>
 
-  <button onclick="rotateImage()">🎞️ Genera GIF 360°</button>
-  <button onclick="downloadOriginal()">💾 Salva Immagine</button>
-  <a id="downloadLink" style="display:none;" download="360.gif">📥 Scarica GIF</a>
+        <div class="gallery" id="gallery">
+            <div class="empty-gallery">
+                <div class="empty-gallery-icon">🖼️</div>
+                <h3>Nessuna immagine caricata</h3>
+                <p>Carica le tue prime immagini per iniziare!</p>
+            </div>
+        </div>
+    </div>
 
-  <canvas id="canvas" width="250" height="250" style="display:none;"></canvas>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const gallery = document.getElementById('gallery');
+        const uploadArea = document.querySelector('.upload-area');
+        const displayArea = document.getElementById('displayArea');
+        const controlsMenu = document.getElementById('controlsMenu');
+        let images = [];
+        let currentImage = null;
 
-  <script>
-    let originalImage;
-    let preview = document.getElementById('preview');
+        // Gestione upload file
+        fileInput.addEventListener('change', handleFiles);
 
-    document.getElementById('imageInput').addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          originalImage = new Image();
-          originalImage.src = e.target.result;
-          originalImage.onload = () => {
-            preview.style.backgroundImage = `url(${originalImage.src})`;
-          };
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+        // Gestione drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
 
-    function rotateImage() {
-      const canvas = document.getElementById('canvas');
-      const ctx = canvas.getContext('2d');
-      const speed = parseInt(document.getElementById('speedInput').value) || 20;
-      const frames = 36;
-      const angleStep = 360 / frames;
-      const images = [];
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
 
-      let angle = 0;
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles({ target: { files } });
+        });
 
-      for (let i = 0; i < frames; i++) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.save();
-        ctx.translate(canvas.width/2, canvas.height/2);
-        ctx.rotate((angle * Math.PI) / 180);
-        ctx.drawImage(originalImage, -originalImage.width/4, -originalImage.height/4, originalImage.width/2, originalImage.height/2);
-        ctx.restore();
-        images.push(canvas.toDataURL('image/png'));
-        angle += angleStep;
-      }
+        // Gestione drag and drop per display area
+        displayArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            displayArea.style.borderColor = 'rgba(255, 255, 255, 0.8)';
+        });
 
-      createGIF(images, speed);
-    }
+        displayArea.addEventListener('dragleave', () => {
+            displayArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+        });
 
-    function createGIF(images, speed) {
-      const gif = new GIF({
-        workers: 2,
-        quality: 10,
-        workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
-      });
+        displayArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            displayArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            const files = e.dataTransfer.files;
+            handleFiles({ target: { files } });
+        });
 
-      images.forEach(src => {
-        const img = new Image();
-        img.src = src;
-        gif.addFrame(img, { delay: 1000 / speed });
-      });
+        function handleFiles(event) {
+            const files = Array.from(event.target.files);
+            
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                const file = files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentImage = {
+                        src: e.target.result,
+                        name: file.name,
+                        size: formatFileSize(file.size)
+                    };
+                    displayImage();
+                    showControls();
+                };
+                reader.readAsDataURL(file);
+            }
 
-      gif.on('finished', function(blob) {
-        const url = URL.createObjectURL(blob);
-        const downloadLink = document.getElementById('downloadLink');
-        downloadLink.href = url;
-        downloadLink.style.display = 'inline';
-        downloadLink.textContent = '📥 Scarica GIF 360';
-      });
+            // Aggiungi anche alla galleria
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imageData = {
+                            id: Date.now() + Math.random(),
+                            src: e.target.result,
+                            name: file.name,
+                            size: formatFileSize(file.size)
+                        };
+                        images.push(imageData);
+                        renderGallery();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
 
-      gif.render();
-    }
+        function displayImage() {
+            if (currentImage) {
+                displayArea.innerHTML = `<img src="${currentImage.src}" alt="${currentImage.name}" class="display-image" id="mainImage">`;
+                displayArea.classList.add('has-image');
+            }
+        }
 
-    function downloadOriginal() {
-      if (!originalImage) return;
-      const a = document.createElement('a');
-      a.href = originalImage.src;
-      a.download = 'immagine-originale.png';
-      a.click();
-    }
-  </script>
+        function showControls() {
+            controlsMenu.style.display = 'flex';
+        }
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+        function applyEffect(effect) {
+            const mainImage = document.getElementById('mainImage');
+            if (!mainImage) return;
 
-</body>
+            // Rimuovi tutte le classi di animazione
+            mainImage.classList.remove('rotate-360', 'rotate-3d', 'spin-3d');
+            
+            // Applica l'effetto selezionato
+            setTimeout(() => {
+                switch(effect) {
+                    case '360':
+                        mainImage.classList.add('rotate-360');
+                        break;
+                    case 'spin':
+                        mainImage.classList.add('rotate-3d');
+                        break;
+                    case '3d':
+                        mainImage.classList.add('spin-3d');
+                        break;
+                }
+            }, 50);
+
+            // Aggiorna pulsanti attivi
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function downloadImage() {
+            if (currentImage) {
+                const link = document.createElement('a');
+                link.href = currentImage.src;
+                link.download = currentImage.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function deleteImage(id) {
+            images = images.filter(img => img.id !== id);
+            renderGallery();
+        }
+
+        function saveImage(src, name) {
+            // Crea un link temporaneo per il download
+            const link = document.createElement('a');
+            link.href = src;
+            link.download = name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function renderGallery() {
+            if (images.length === 0) {
+                gallery.innerHTML = `
+                    <div class="empty-gallery">
+                        <div class="empty-gallery-icon">🖼️</div>
+                        <h3>Nessuna immagine caricata</h3>
+                        <p>Carica le tue prime immagini per iniziare!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            gallery.innerHTML = images.map((image, index) => `
+                <div class="image-card" style="animation-delay: ${index * 0.1}s">
+                    <div class="image-container">
+                        <img src="${image.src}" alt="${image.name}" loading="lazy">
+                        <button class="save-btn" onclick="saveImage('${image.src}', '${image.name}')" title="Salva immagine">
+                            💾
+                        </button>
+                        <button class="delete-btn" onclick="deleteImage(${image.id})" title="Elimina immagine">
+                            ×
+                        </button>
+                    </div>
+                    <div class="image-info">
+                        <div class="image-name">${image.name}</div>
+                        <div class="image-size">${image.size}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Inizializza la galleria
+        renderGallery();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96a02d8ab176e165',t:'MTc1NDMzMjc3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+
