@@ -2,147 +2,98 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Sniper Logo Tool v3</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>360 Logo Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
   <style>
     body {
-      background: linear-gradient(to bottom, #0a0a23, #1f1f3d);
-      color: white;
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
       text-align: center;
       padding: 20px;
     }
-
-    h1 {
-      font-size: 36px;
-      color: #00ffff;
-      margin-bottom: 15px;
+    input, button, select {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
     }
-
-    #banner {
-      width: 95%;
-      max-width: 400px;
-      background: #111;
-      border-radius: 15px;
-      margin: auto;
-      padding: 20px;
-      box-shadow: 0 0 20px #00ffff44;
-    }
-
-    #image-container {
-      width: 100%;
-      aspect-ratio: 1/1;
-      margin: auto;
-      border-radius: 10px;
-      overflow: hidden;
-      position: relative;
-      transform-style: preserve-3d;
-    }
-
-    #logo {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      animation: rotate360 3s linear infinite;
-    }
-
-    .lightning {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url('https://i.ibb.co/yn9fKSt/lightning.gif');
-      background-size: cover;
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    input[type="file"], input[type="range"] {
-      margin-top: 10px;
-    }
-
-    .controls {
-      margin-top: 15px;
-    }
-
-    button {
-      margin: 5px;
-      padding: 10px 20px;
-      background: #00ffff;
-      color: #000;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #00cccc;
-    }
-
-    label {
+    canvas {
       display: block;
-      margin-top: 10px;
-    }
-
-    #speedValue {
-      font-weight: bold;
-      color: #00ffff;
+      margin: 20px auto;
+      background: #222;
     }
   </style>
 </head>
 <body>
-  <h1>Sniper Logo Tool v3</h1>
-  <div id="banner">
-    <input type="file" accept="image/*" onchange="loadImage(event)">
-    <div id="image-container">
-      <img id="logo" src="" alt="Logo">
-      <div class="lightning hidden" id="lightning"></div>
-    </div>
+  <h1>🎯 Logo 360 Generator</h1>
 
-    <div class="controls">
-      <button onclick="toggleLightning()">⚡ 360 + Fulmine</button>
-      <button onclick="saveImage()">💾 Salva Immagine</button>
+  <input type="file" id="upload" accept="image/*"><br>
+  <label>Velocità (ms per frame):</label>
+  <input type="number" id="speed" value="100" min="10" max="1000"><br>
+  <button onclick="generaGIF()">🎥 Crea GIF</button>
 
-      <label for="speedRange">⏱️ Velocità 360: <span id="speedValue">3</span>s</label>
-      <input type="range" id="speedRange" min="1" max="100" value="3" oninput="updateSpeed(this.value)">
-    </div>
-  </div>
+  <canvas id="preview" width="300" height="300"></canvas>
+  <br>
+  <a id="downloadLink" style="display:none;" download="logo360.gif">📥 Scarica GIF</a>
 
   <script>
-    function loadImage(event) {
-      const logo = document.getElementById('logo');
-      logo.src = URL.createObjectURL(event.target.files[0]);
+    let img = new Image();
+    let angle = 0;
+    let canvas = document.getElementById("preview");
+    let ctx = canvas.getContext("2d");
+
+    document.getElementById("upload").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        img.onload = function() {
+          drawRotated();
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function drawRotated(angleDeg = 0) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((angleDeg * Math.PI) / 180);
+      ctx.drawImage(img, -img.width / 2, -img.height / 2);
+      ctx.restore();
     }
 
-    function toggleLightning() {
-      const lightning = document.getElementById('lightning');
-      lightning.classList.toggle('hidden');
-    }
-
-    function updateSpeed(value) {
-      document.getElementById('speedValue').textContent = value;
-      document.getElementById('logo').style.animationDuration = value + 's';
-    }
-
-    function saveImage() {
-      const container = document.getElementById('image-container');
-
-      html2canvas(container).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'sniper_logo.png';
-        link.href = canvas.toDataURL();
-        link.click();
+    function generaGIF() {
+      if (!img.src) return alert("Carica prima un'immagine!");
+      const delay = parseInt(document.getElementById("speed").value);
+      const gif = new GIF({
+        workers: 2,
+        quality: 10,
+        width: canvas.width,
+        height: canvas.height
       });
+
+      let angles = [];
+      for (let i = 0; i < 360; i += 10) angles.push(i);
+
+      (async function () {
+        for (let i = 0; i < angles.length; i++) {
+          drawRotated(angles[i]);
+          await new Promise(r => setTimeout(r, 10));
+          gif.addFrame(ctx, { copy: true, delay: delay });
+        }
+
+        gif.on('finished', function(blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.getElementById("downloadLink");
+          link.href = url;
+          link.style.display = "inline-block";
+        });
+
+        gif.render();
+      })();
     }
   </script>
-
-  <!-- Libreria per salvare immagini -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
