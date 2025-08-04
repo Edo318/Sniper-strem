@@ -2,46 +2,147 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <title>Sniper Logo Tool v3</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Logo 360°</title>
   <style>
     body {
-      background: #0a0a23;
+      background: linear-gradient(to bottom, #0a0a23, #1f1f3d);
       color: white;
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
     }
-    #preview {
-      width: 200px;
-      height: 200px;
-      margin: 20px auto;
+
+    h1 {
+      font-size: 36px;
+      color: #00ffff;
+      margin-bottom: 15px;
+    }
+
+    #banner {
+      width: 95%;
+      max-width: 400px;
+      background: #111;
+      border-radius: 15px;
+      margin: auto;
+      padding: 20px;
+      box-shadow: 0 0 20px #00ffff44;
+    }
+
+    #image-container {
+      width: 100%;
+      aspect-ratio: 1/1;
+      margin: auto;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    #logo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       animation: rotate360 3s linear infinite;
     }
-    @keyframes rotate360 {
-      from {
-        transform: rotateY(0deg);
-      }
-      to {
-        transform: rotateY(360deg);
-      }
+
+    .lightning {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://i.ibb.co/yn9fKSt/lightning.gif');
+      background-size: cover;
+      opacity: 0.5;
+      pointer-events: none;
     }
-    input {
-      margin-top: 20px;
+
+    .hidden {
+      display: none;
+    }
+
+    input[type="file"], input[type="range"] {
+      margin-top: 10px;
+    }
+
+    .controls {
+      margin-top: 15px;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      background: #00ffff;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #00cccc;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    #speedValue {
+      font-weight: bold;
+      color: #00ffff;
     }
   </style>
 </head>
 <body>
-  <h1>🎯 Logo 360° Rotazione</h1>
-  <input type="file" accept="image/*" onchange="loadImage(event)">
-  <br><br>
-  <img id="preview" src="" alt="Preview">
-  
+  <h1>Sniper Logo Tool v3</h1>
+  <div id="banner">
+    <input type="file" accept="image/*" onchange="loadImage(event)">
+    <div id="image-container">
+      <img id="logo" src="" alt="Logo">
+      <div class="lightning hidden" id="lightning"></div>
+    </div>
+
+    <div class="controls">
+      <button onclick="toggleLightning()">⚡ 360 + Fulmine</button>
+      <button onclick="saveImage()">💾 Salva Immagine</button>
+
+      <label for="speedRange">⏱️ Velocità 360: <span id="speedValue">3</span>s</label>
+      <input type="range" id="speedRange" min="1" max="100" value="3" oninput="updateSpeed(this.value)">
+    </div>
+  </div>
+
   <script>
     function loadImage(event) {
-      const image = document.getElementById('preview');
-      image.src = URL.createObjectURL(event.target.files[0]);
+      const logo = document.getElementById('logo');
+      logo.src = URL.createObjectURL(event.target.files[0]);
+    }
+
+    function toggleLightning() {
+      const lightning = document.getElementById('lightning');
+      lightning.classList.toggle('hidden');
+    }
+
+    function updateSpeed(value) {
+      document.getElementById('speedValue').textContent = value;
+      document.getElementById('logo').style.animationDuration = value + 's';
+    }
+
+    function saveImage() {
+      const container = document.getElementById('image-container');
+
+      html2canvas(container).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'sniper_logo.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
     }
   </script>
+
+  <!-- Libreria per salvare immagini -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
