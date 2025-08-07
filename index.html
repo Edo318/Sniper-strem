@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Generatore GIF 360</title>
+  <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #preview {
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+      background: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+    }
+    #saveBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🎨 Generatore GIF 360°</h2>
+<input type="file" id="upload" accept="image/*"><br>
+
+<div id="preview"><canvas id="canvas" width="300" height="300"></canvas></div>
+
+<button id="saveBtn">💾 Salva GIF 360°</button>
+
+<script>
+const upload = document.getElementById('upload');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let image = new Image();
+
+upload.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    image.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+image.onload = () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+};
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+  const gif = new GIF({
+    workers: 2,
+    quality: 10,
+    width: 300,
+    height: 300
+  });
+
+  const steps = 20;
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+
+  for (let i = 0; i < steps; i++) {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+
+    const angle = (i / steps) * Math.PI * 2;
+
+    tempCtx.clearRect(0, 0, canvas.width, canvas.height);
+    tempCtx.save();
+    tempCtx.translate(centerX, centerY);
+    tempCtx.rotate(angle);
+    tempCtx.drawImage(image, -image.width / 2, -image.height / 2, canvas.width, canvas.height);
+    tempCtx.restore();
+
+    gif.addFrame(tempCanvas, { delay: 100 });
+  }
+
+  gif.on('finished', function(blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'immagine360.gif';
+    a.click();
+  });
+
+  gif.render();
+});
+</script>
+
+</body>
+</html>
