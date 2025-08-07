@@ -2,31 +2,27 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Generatore GIF 360</title>
+  <title>Logo 360° GIF</title>
   <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      margin: 20px;
+      margin-top: 20px;
     }
     #preview {
       width: 300px;
       height: 300px;
-      margin: 20px auto;
-      background: #eee;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      position: relative;
+      margin: auto;
+      background: #fff;
+      border: 1px solid #ccc;
     }
     canvas {
-      max-width: 100%;
-      max-height: 100%;
+      width: 100%;
+      height: 100%;
     }
-    #saveBtn {
-      margin-top: 20px;
+    button {
+      margin-top: 15px;
       padding: 10px 20px;
       font-size: 16px;
     }
@@ -34,36 +30,25 @@
 </head>
 <body>
 
-<h2>🎨 Generatore GIF 360°</h2>
-<input type="file" id="upload" accept="image/*"><br>
+<h2>Logo Rotazione 360° ➜ GIF</h2>
 
-<div id="preview"><canvas id="canvas" width="300" height="300"></canvas></div>
+<div id="preview">
+  <canvas id="canvas" width="300" height="300"></canvas>
+</div>
 
-<button id="saveBtn">💾 Salva GIF 360°</button>
+<button id="startBtn">🎬 Genera e Scarica GIF</button>
 
 <script>
-const upload = document.getElementById('upload');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-let image = new Image();
-
-upload.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    image.src = evt.target.result;
-  };
-  reader.readAsDataURL(file);
-});
+const image = new Image();
+image.src = 'AC7DA235-8FDD-44D6-A9D5-8ADF9AA1293E.jpeg'; // carica il tuo logo
 
 image.onload = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 };
 
-document.getElementById('saveBtn').addEventListener('click', () => {
+document.getElementById('startBtn').addEventListener('click', () => {
   const gif = new GIF({
     workers: 2,
     quality: 10,
@@ -71,9 +56,9 @@ document.getElementById('saveBtn').addEventListener('click', () => {
     height: 300
   });
 
-  const steps = 20;
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
+  const steps = 24;
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
 
   for (let i = 0; i < steps; i++) {
     const tempCanvas = document.createElement('canvas');
@@ -81,14 +66,13 @@ document.getElementById('saveBtn').addEventListener('click', () => {
     tempCanvas.height = canvas.height;
     const tempCtx = tempCanvas.getContext('2d');
 
-    const angle = (i / steps) * Math.PI * 2;
-
+    const angle = (i / steps) * 2 * Math.PI;
     tempCtx.clearRect(0, 0, canvas.width, canvas.height);
-    tempCtx.save();
-    tempCtx.translate(centerX, centerY);
+    tempCtx.translate(cx, cy);
     tempCtx.rotate(angle);
-    tempCtx.drawImage(image, -image.width / 2, -image.height / 2, canvas.width, canvas.height);
-    tempCtx.restore();
+    tempCtx.drawImage(image, -150, -150, 300, 300);
+    tempCtx.rotate(-angle);
+    tempCtx.translate(-cx, -cy);
 
     gif.addFrame(tempCanvas, { delay: 100 });
   }
@@ -97,7 +81,7 @@ document.getElementById('saveBtn').addEventListener('click', () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'immagine360.gif';
+    a.download = 'logo-360.gif';
     a.click();
   });
 
